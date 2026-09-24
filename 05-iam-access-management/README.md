@@ -404,7 +404,7 @@ ListBucket          → ALLOWED
 PutObject           → DENIED
 Least Privilege     → VERIFIED
 Documentation       → COMPLETE
-Cleanup             → PENDING
+Cleanup             → COMPLETE
 ```
 
 ---
