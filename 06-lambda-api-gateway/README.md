@@ -223,7 +223,7 @@ For this lab:
 
 ## Cleanup
 
-After completing the documentation and verifying the screenshots, the temporary AWS resources should be removed.
+After completing the documentation and testing, the temporary AWS resources were removed to avoid unnecessary ongoing usage.
 
 Cleanup includes:
 
@@ -245,7 +245,7 @@ Lambda Testing        → COMPLETE
 API Gateway           → COMPLETE
 API Testing           → COMPLETE
 Documentation         → COMPLETE
-Cleanup               → PENDING
+Cleanup               → COMPLETE
 ```
 
 ---
