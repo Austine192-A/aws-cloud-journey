@@ -2,17 +2,17 @@
 
 ## Overview
 
-In this lab, I built a serverless task management API using AWS Lambda, Amazon API Gateway, and Amazon DynamoDB.
+In this lab, I built a serverless task management API using AWS Lambda, Amazon API Gateway, Amazon DynamoDB, and AWS IAM.
 
 The goal was to build a practical backend that could create, retrieve, list, and delete tasks without managing a traditional server.
 
-This lab also provided hands-on experience with IAM permissions, API Gateway routing, DynamoDB operations, Lambda testing, and troubleshooting.
+This lab provided hands-on experience with serverless application architecture, database operations, IAM permissions, API Gateway routing, Lambda testing, PowerShell API testing, and troubleshooting.
 
 ---
 
 ## Architecture
 
-The application follows a simple serverless architecture:
+The application follows a serverless architecture:
 
 ```text
 Client
@@ -84,19 +84,18 @@ lab-07-task-api
 
 ### Configuration
 
-* **Runtime:** Python
+* **Runtime:** Python 3.13
 * **Architecture:** x86_64
 * **Environment variable:** `TABLE_NAME=lab-07-tasks`
 
-The Lambda function contains the application logic for the API.
+The Lambda function contains the application logic for handling the API requests.
 
-It handles:
+It supports:
 
 * Creating tasks
 * Listing tasks
 * Retrieving individual tasks
 * Deleting tasks
-* Returning appropriate HTTP status codes and JSON responses
 
 ### Main operations
 
@@ -126,7 +125,7 @@ dynamodb:Scan
 dynamodb:DeleteItem
 ```
 
-The permissions were attached through an inline IAM policy named:
+These permissions were provided through an inline IAM policy named:
 
 ```text
 Lab07TaskTableAccess
@@ -140,7 +139,7 @@ This allowed the Lambda function to perform only the database operations require
 
 ## 4. Lambda Testing
 
-Before connecting the complete API, I tested the Lambda function directly.
+Before testing the complete API, I tested the Lambda function directly using a Lambda test event.
 
 The test event simulated a `POST` request:
 
@@ -157,21 +156,12 @@ The test event simulated a `POST` request:
 
 The function successfully created a task and returned a `201` response.
 
-Example response:
+The response included:
 
-```json
-{
-  "statusCode": 201,
-  "body": {
-    "message": "Task created",
-    "task": {
-      "id": "unique-task-id",
-      "title": "Learn DynamoDB",
-      "completed": false
-    }
-  }
-}
-```
+* A success message
+* A generated task ID
+* The task title
+* The completion status
 
 ### Evidence
 
@@ -208,7 +198,7 @@ The following routes were configured:
 
 ## 6. API Testing
 
-After configuring API Gateway, I tested the API from PowerShell.
+After configuring API Gateway, I tested the API using PowerShell.
 
 ### Create a task
 
@@ -240,17 +230,17 @@ The API successfully retrieved a task using its unique ID.
 DELETE /tasks/{id}
 ```
 
-The API successfully deleted the selected task from DynamoDB.
+The API successfully deleted the selected task.
 
 ### Verify deletion
 
-After deleting the task, I requested it again:
+After deleting the task, I requested the same task ID again:
 
 ```text
 GET /tasks/{id}
 ```
 
-The API returned:
+The API correctly returned:
 
 ```json
 {
@@ -268,15 +258,7 @@ This confirmed that the task had been successfully removed from DynamoDB.
 
 ## 7. Troubleshooting
 
-One of the useful parts of this lab was troubleshooting API Gateway routing.
-
-Initially, requests to:
-
-```text
-GET /tasks/{id}
-```
-
-returned:
+During the lab, some API routes initially returned:
 
 ```json
 {
@@ -286,18 +268,18 @@ returned:
 
 The Lambda function itself was working correctly, and other API operations were successful.
 
-I traced the problem to the API Gateway route configuration.
+The issue was traced to the API Gateway route configuration.
 
 The affected routes were recreated and connected to the `lab-07-task-api` Lambda function.
 
-After rebuilding the routes, the API successfully handled:
+After correcting the routes, the API successfully handled:
 
 ```text
 GET /tasks/{id}
 DELETE /tasks/{id}
 ```
 
-This demonstrated an important lesson: a working Lambda function does not automatically mean that the API Gateway routing configuration is correct.
+This was an important practical lesson: having working backend code is only one part of building a working API. The API Gateway routes and integrations also need to be configured correctly.
 
 ---
 
@@ -337,14 +319,15 @@ This lab helped me understand how multiple AWS services can be combined to creat
 
 ### Technical lessons
 
-* How to create and work with DynamoDB tables
-* How Lambda functions interact with DynamoDB
-* How IAM controls access between AWS services
-* How to build HTTP APIs with API Gateway
-* How to work with API path parameters
-* How to test APIs using PowerShell
-* How to troubleshoot API Gateway route configuration
-* How to verify that API operations actually change database state
+* Creating and working with DynamoDB tables
+* Connecting Lambda to DynamoDB
+* Using IAM to control access between AWS services
+* Building HTTP APIs with API Gateway
+* Working with API path parameters
+* Testing API endpoints using PowerShell
+* Troubleshooting API Gateway route configuration
+* Verifying that API operations actually change database state
+* Understanding the relationship between API Gateway, Lambda, and DynamoDB
 
 ### Practical takeaway
 
@@ -366,13 +349,13 @@ API Gateway
 Client
 ```
 
-Instead of simply learning what each AWS service does individually, this lab demonstrated how they work together as a real application architecture.
+Rather than learning each AWS service separately, this lab demonstrated how they can work together to form a functional backend application.
 
 ---
 
 ## 10. Evidence
 
-All screenshots captured during the lab are stored in the `screenshots` directory:
+The lab evidence is stored in the `screenshots` directory:
 
 ```text
 screenshots/
@@ -383,30 +366,67 @@ screenshots/
 └── 05-api-endpoints-test.png
 ```
 
-The screenshots provide visual evidence of the database, Lambda function, Lambda testing, API Gateway configuration, and API endpoint testing.
+The screenshots provide evidence of:
+
+1. DynamoDB table configuration
+2. Lambda function and application code
+3. Successful Lambda testing
+4. API Gateway route configuration
+5. Successful API endpoint testing
 
 ---
 
-## 11. Cleanup
+## 11. AWS Resource Cleanup
 
-After completing the lab and documenting the results, the AWS resources should be removed to avoid unnecessary ongoing costs.
+After completing the build, testing, and documentation, I removed the AWS resources used for this lab to avoid unnecessary ongoing costs.
 
-Resources to clean up:
+The following resources were cleaned up:
 
-* API Gateway API: `lab-07-task-api`
-* Lambda function: `lab-07-task-api`
-* Lambda execution role created for the lab
-* DynamoDB table: `lab-07-tasks`
-* Associated IAM permissions
+* **API Gateway:** `lab-07-task-api`
+* **Lambda function:** `lab-07-task-api`
+* **Lambda execution role:** Lab 07 execution role
+* **DynamoDB table:** `lab-07-tasks`
+* **IAM permissions:** `Lab07TaskTableAccess`
 
-The project documentation and screenshots will remain in this repository as evidence of the completed lab.
+The application was fully tested before the resources were removed.
+
+The screenshots and documentation remain in this repository as permanent evidence of the completed lab.
 
 ---
 
 ## Status
 
-**Lab 07 — Build and testing complete.**
+**Lab 07 — Complete and Cleaned Up ✅**
 
-The serverless task API was successfully built, tested, troubleshot, and documented.
+The serverless task API was successfully:
 
-**Next step:** Clean up the AWS resources and finalize the GitHub documentation.
+* Built
+* Configured
+* Tested
+* Troubleshot
+* Documented
+* Cleaned up
+
+The final architecture demonstrated was:
+
+```text
+Client
+   ↓
+API Gateway
+   ↓
+Lambda
+   ↓
+DynamoDB
+```
+
+All temporary AWS resources used during the lab have been removed.
+
+The project documentation, screenshots, and lessons learned remain available in this repository as evidence of the work completed.
+
+---
+
+## Repository
+
+The complete AWS Cloud Learning Journey is available on GitHub:
+
+**https://github.com/Austine192-A/aws-cloud-journey**
