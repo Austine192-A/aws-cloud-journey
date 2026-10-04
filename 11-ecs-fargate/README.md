@@ -2,9 +2,13 @@
 
 ## Overview
 
-In this lab, I deployed a containerized web application on AWS using Docker, Amazon ECR, Amazon ECS with Fargate, and an Application Load Balancer.
+In this lab, I deployed a containerized web application on AWS using **Docker, Amazon ECR, Amazon ECS with AWS Fargate, and an Application Load Balancer**.
 
-The lab demonstrated how a Docker image could be built, stored in a container registry, deployed as an ECS task, exposed through a load balancer, and automatically replaced when a running task was stopped.
+The lab demonstrated the complete container deployment workflow, from creating a Docker image and storing it in ECR to running the application on ECS Fargate and exposing it through an Application Load Balancer.
+
+I also tested ECS service self-healing by deliberately stopping a running task and verifying that ECS automatically launched a replacement.
+
+---
 
 ## Architecture
 
@@ -38,17 +42,41 @@ The lab demonstrated how a Docker image could be built, stored in a container re
                     └─────────────┘
 ```
 
+### Request Flow
+
+```text
+User
+ ↓
+Application Load Balancer
+ ↓
+Target Group
+ ↓
+ECS Service
+ ↓
+Fargate Tasks
+ ↓
+Docker Container
+ ↓
+Nginx
+ ↓
+HTML Application
+```
+
+---
+
 ## AWS Services Used
 
-* Amazon ECR
-* Amazon ECS
-* AWS Fargate
-* Application Load Balancer
-* Amazon VPC
-* Elastic Load Balancing
-* IAM
+* **Amazon ECR** — Container image registry
+* **Amazon ECS** — Container orchestration
+* **AWS Fargate** — Serverless container compute
+* **Application Load Balancer** — Public traffic distribution
+* **Amazon VPC** — Networking
+* **Elastic Load Balancing** — Target health checks and routing
+* **AWS IAM** — ECS task execution permissions
 
-## Technologies
+---
+
+## Technologies Used
 
 * Docker
 * Nginx
@@ -56,6 +84,8 @@ The lab demonstrated how a Docker image could be built, stored in a container re
 * Linux containers
 * AWS CLI
 * AWS CloudShell
+
+---
 
 ## Project Structure
 
@@ -74,9 +104,11 @@ The lab demonstrated how a Docker image could be built, stored in a container re
     └── 07-self-healing.png
 ```
 
-## 1. Created the Web Application
+---
 
-I created a simple HTML application to provide a lightweight workload for the container.
+# 1. Created the Web Application
+
+I created a simple HTML application that was used as the workload for the Docker container.
 
 The application displayed:
 
@@ -86,9 +118,13 @@ Lab 11 - ECS Fargate
 This application is running inside a Docker container on Amazon ECS Fargate.
 ```
 
-## 2. Created the Docker Image
+The application was intentionally kept simple so that the focus of the lab remained on containerization and AWS deployment.
 
-The application was packaged using the following Dockerfile:
+---
+
+# 2. Created the Docker Image
+
+I created a Dockerfile using the lightweight `nginx:alpine` image.
 
 ```dockerfile
 FROM nginx:alpine
@@ -98,17 +134,36 @@ COPY index.html /usr/share/nginx/html/index.html
 EXPOSE 80
 ```
 
-The image used the lightweight `nginx:alpine` base image and served the HTML application through Nginx on port 80.
+The Dockerfile copied the application into Nginx's default web directory and exposed port 80.
 
-## 3. Tested the Container Locally
+The resulting image was named:
 
-Because Docker was not installed on my Windows environment, I used AWS CloudShell, which already had Docker available.
+```text
+lab-11-web
+```
 
-I built the image and tested the container locally inside CloudShell.
+---
 
-The container successfully returned the expected HTML response before it was deployed to ECS.
+# 3. Tested the Docker Container
 
-## 4. Created an ECR Repository
+Docker was not installed locally on my Windows environment, so I used **AWS CloudShell**, which provided Docker and the AWS CLI.
+
+I built the Docker image and started a local container for testing.
+
+The application was tested through port 8080:
+
+```bash
+docker run -d --name lab-11-container -p 8080:80 lab-11-web
+curl http://localhost:8080
+```
+
+The container returned the expected HTML response.
+
+This confirmed that the application worked correctly before being deployed to ECS.
+
+---
+
+# 4. Created the Amazon ECR Repository
 
 I created an Amazon ECR repository named:
 
@@ -116,23 +171,31 @@ I created an Amazon ECR repository named:
 lab-11-web
 ```
 
-The Docker image was tagged for Amazon ECR and pushed to the repository.
+The Docker image was tagged for the ECR repository and pushed successfully.
 
-The image was successfully stored in ECR and was later used by the ECS task definition.
+The image stored in ECR was then used by the ECS task definition.
 
-## 5. Created the ECS Cluster
+![Amazon ECR image](screenshots/01-ecr-image.png)
 
-I created an ECS cluster named:
+---
+
+# 5. Created the ECS Cluster
+
+I created an Amazon ECS cluster named:
 
 ```text
 lab-11-cluster
 ```
 
-The cluster used AWS Fargate as the compute platform.
+The cluster was configured to run workloads using **AWS Fargate**.
 
-During the initial setup, ECS reported that its service-linked role was missing. I verified the AWSServiceRoleForECS service-linked role and retried the cluster creation successfully.
+During the initial creation attempt, ECS reported that its service-linked role was unavailable. I verified the required `AWSServiceRoleForECS` service-linked role and retried the operation successfully.
 
-## 6. Created the Task Definition
+![ECS cluster](screenshots/02-ecs-cluster.png)
+
+---
+
+# 6. Created the ECS Task Definition
 
 I created the task definition family:
 
@@ -142,21 +205,27 @@ lab-11-task
 
 The task definition was configured with:
 
-* Launch type: Fargate
-* Operating system: Linux
-* Architecture: x86_64
-* CPU: 1024
-* Memory: 3072 MiB
-* Container name: `lab-11-web`
-* Container port: 80
-* Protocol: TCP
-* Application protocol: HTTP
+| Configuration        | Value        |
+| -------------------- | ------------ |
+| Launch type          | Fargate      |
+| Operating system     | Linux        |
+| Architecture         | x86_64       |
+| CPU                  | 1024         |
+| Memory               | 3072 MiB     |
+| Container name       | `lab-11-web` |
+| Container port       | 80           |
+| Protocol             | TCP          |
+| Application protocol | HTTP         |
 
-The task definition referenced the Docker image stored in the ECR repository.
+The task definition referenced the Docker image stored in Amazon ECR.
 
-## 7. Configured Security Groups
+![Task definition](screenshots/03-task-definition.png)
 
-Two security groups were used to control traffic.
+---
+
+# 7. Configured Security Groups
+
+I used separate security groups for the Application Load Balancer and ECS web containers.
 
 ### Application Load Balancer Security Group
 
@@ -164,7 +233,7 @@ Two security groups were used to control traffic.
 lab-11-alb-sg
 ```
 
-Inbound HTTP traffic was allowed on port 80 from:
+Inbound HTTP traffic was allowed on port 80 from the internet:
 
 ```text
 0.0.0.0/0
@@ -172,17 +241,31 @@ Inbound HTTP traffic was allowed on port 80 from:
 
 ### ECS Web Security Group
 
-The existing web security group was:
-
 ```text
 lab-11-web-sgv
 ```
 
-Inbound HTTP traffic on port 80 was restricted to the Application Load Balancer security group.
+Inbound HTTP traffic on port 80 was restricted to traffic originating from the Application Load Balancer security group.
 
-This created a security-group chain where public HTTP traffic reached the ALB first, while the ECS tasks only accepted HTTP traffic from the ALB.
+This created the following traffic flow:
 
-## 8. Created the Target Group
+```text
+Internet
+   ↓
+ALB Security Group
+   ↓
+Application Load Balancer
+   ↓
+ECS Web Security Group
+   ↓
+Fargate Tasks
+```
+
+This was preferable to allowing public HTTP traffic directly to the ECS tasks.
+
+---
+
+# 8. Created the Target Group
 
 I created the target group:
 
@@ -190,17 +273,19 @@ I created the target group:
 lab-11-web-targets
 ```
 
-Configuration included:
+The target group was configured with:
 
 * Target type: IP
 * Protocol: HTTP
 * Port: 80
 * Health check path: `/`
-* Successful response: HTTP 200
+* Expected successful response: HTTP 200
 
-The target group was used by the ALB to route requests to the Fargate tasks.
+Because the ECS tasks used Fargate networking, their IP addresses were registered directly with the target group.
 
-## 9. Created the Application Load Balancer
+---
+
+# 9. Created the Application Load Balancer
 
 I created an internet-facing Application Load Balancer named:
 
@@ -208,7 +293,7 @@ I created an internet-facing Application Load Balancer named:
 lab-11-alb
 ```
 
-The ALB used:
+The ALB was configured with:
 
 * IPv4
 * HTTP listener on port 80
@@ -216,9 +301,11 @@ The ALB used:
 * `lab-11-alb-sg`
 * `lab-11-web-targets`
 
-The listener forwarded incoming requests to the ECS target group.
+The listener forwarded incoming HTTP requests to the ECS target group.
 
-## 10. Created the ECS Service
+---
+
+# 10. Created the ECS Service
 
 I created the ECS service:
 
@@ -226,39 +313,37 @@ I created the ECS service:
 lab-11-service
 ```
 
-The service was configured to maintain:
+The service was configured with:
 
 ```text
 Desired tasks: 2
 ```
 
-Both tasks were launched using AWS Fargate.
+The service launched two Fargate tasks and connected them to the Application Load Balancer through the target group.
 
-The service was connected to the Application Load Balancer and target group.
+![ECS service tasks](screenshots/04-ecs-service-tasks.png)
 
-## 11. Verified Healthy Tasks
+---
 
-After deployment, the ECS service reached:
+# 11. Verified Healthy Targets
 
-```text
-Desired: 2
-Running: 2
-Pending: 0
-```
+After deployment, both Fargate tasks successfully registered with the target group.
 
-Both Fargate tasks registered successfully with the target group and reported a healthy status.
-
-This confirmed that:
+The target health checks reported both tasks as:
 
 ```text
-ALB → Target Group → Fargate Tasks
+healthy
 ```
 
-was working correctly.
+This confirmed that the load balancer could communicate successfully with the containers.
 
-## 12. Tested the Application
+![Healthy target group](screenshots/05-healthy-targets.png)
 
-I tested the application through the ALB endpoint using `curl`.
+---
+
+# 12. Tested the Application Through the ALB
+
+I tested the application through the Application Load Balancer using `curl`.
 
 The response returned:
 
@@ -268,21 +353,40 @@ HTTP/1.1 200 OK
 
 The expected application content was also returned:
 
-```text
-Lab 11 - ECS Fargate
-
-This application is running inside a Docker container on Amazon ECS Fargate.
+```html
+<h1>Lab 11 - ECS Fargate</h1>
+<p>This application is running inside a Docker container on Amazon ECS Fargate.</p>
 ```
 
-This confirmed that traffic successfully travelled through the load balancer to the containerized application.
+This confirmed the complete request path:
 
-## 13. Tested ECS Self-Healing
+```text
+Internet
+   ↓
+ALB
+   ↓
+Target Group
+   ↓
+Fargate Task
+   ↓
+Nginx
+   ↓
+HTML
+```
 
-To test the ECS service's ability to maintain its desired task count, I deliberately stopped one of the running Fargate tasks.
+![ALB response](screenshots/06-alb-response.png)
 
-The service temporarily dropped below the desired count and ECS automatically started a replacement task.
+---
 
-The service eventually returned to:
+# 13. Tested ECS Self-Healing
+
+To verify ECS service behavior, I deliberately stopped one of the running Fargate tasks.
+
+The service temporarily dropped below its desired task count.
+
+ECS automatically detected that only one task remained and launched a replacement task.
+
+After the replacement started and passed its health check, the service returned to:
 
 ```text
 Desired: 2
@@ -290,23 +394,25 @@ Running: 2
 Pending: 0
 ```
 
-The replacement task registered with the target group and became healthy.
+This demonstrated ECS service self-healing and the ability to maintain the configured desired number of tasks.
 
-This demonstrated ECS service self-healing.
+![ECS self-healing](screenshots/07-self-healing.png)
 
-## 14. Troubleshooting
+---
 
-### Security Group CIDR Error
+# 14. Troubleshooting
 
-During deployment, I encountered:
+## Security Group CIDR Error
+
+During the ECS deployment, I encountered the following error:
 
 ```text
 CIDR block lab-11-alb-sg is malformed
 ```
 
-The problem occurred because the security group name had been entered where an IP address/CIDR value was expected.
+The problem occurred because the security group name had been entered into a field expecting an IP address or CIDR block.
 
-I corrected the configuration by using the actual security group ID for the source of the inbound rule.
+I corrected the configuration by using the actual security group ID when referencing the ALB security group as the source of the inbound rule.
 
 This reinforced the distinction between:
 
@@ -314,73 +420,86 @@ This reinforced the distinction between:
 * Security group ID
 * CIDR block
 
-### ECS Service-Linked Role
+---
+
+## ECS Service-Linked Role
 
 The initial ECS cluster creation also failed because the required ECS service-linked role was not available.
 
-I verified the `AWSServiceRoleForECS` role and retried the operation successfully.
+I verified the `AWSServiceRoleForECS` role and retried the cluster creation successfully.
 
-## 15. What I Learned
+---
 
-This lab helped me understand the complete container deployment workflow on AWS:
+# 15. Key Lessons Learned
+
+This lab helped me understand how modern containerized applications can be deployed on AWS without managing the underlying servers.
+
+The complete workflow was:
 
 ```text
 Application
-    ↓
+     ↓
 Docker
-    ↓
+     ↓
 Amazon ECR
-    ↓
+     ↓
 ECS Task Definition
-    ↓
+     ↓
 ECS Service
-    ↓
+     ↓
 AWS Fargate
-    ↓
+     ↓
 Target Group
-    ↓
+     ↓
 Application Load Balancer
-    ↓
+     ↓
 Internet
 ```
 
-Key lessons included:
+### Main takeaways
 
 * How Docker packages an application into a container image
-* How Amazon ECR stores container images
+* How Amazon ECR stores Docker images
 * How ECS task definitions describe container workloads
-* How Fargate runs containers without managing EC2 servers
+* How AWS Fargate runs containers without managing EC2 instances
 * How ECS services maintain a desired number of running tasks
-* How ALBs distribute traffic to containerized applications
+* How Application Load Balancers route traffic to containers
 * How target groups perform health checks
-* How security groups can restrict traffic between AWS components
-* How ECS can replace a stopped task automatically
+* How security groups control traffic between AWS components
+* How ECS can automatically replace a stopped task
 * How to troubleshoot AWS networking and deployment configuration errors
 
-## 16. Cleanup
+---
+
+# 16. Cleanup
 
 After completing the lab, I removed the temporary AWS resources to avoid unnecessary ongoing costs.
+
+The lab resources were cleaned up after the deployment and testing phase.
 
 The cleanup included:
 
 * ECS service
+* ECS tasks
 * ECS cluster
 * Application Load Balancer
 * Target group
-* ECR repository and image
+* ECR repository and container image
 * Lab-specific security groups
 * Lab-specific IAM resources where applicable
 
 Shared/default VPC networking resources were preserved.
 
-The local Docker container and temporary Docker authentication data were also cleaned up after testing.
+The temporary local Docker container and Docker authentication data were also cleaned up after testing.
 
-## Result
+---
+
+# Result
 
 The lab successfully demonstrated a complete container deployment workflow using:
 
-**Docker → ECR → ECS/Fargate → ALB**
+**Docker → Amazon ECR → Amazon ECS/Fargate → Application Load Balancer**
 
-The application was successfully deployed, accessed through the load balancer, monitored through target health checks, and tested for ECS self-healing.
+The application was successfully containerized, stored in ECR, deployed to two Fargate tasks, exposed through an Application Load Balancer, verified through health checks, and tested for ECS self-healing.
 
-This was the next step in my AWS Cloud Learning Journey from running applications directly on EC2 toward modern containerized deployments.
+This lab marked my transition from deploying applications directly on EC2 to working with **containerized workloads and serverless container infrastructure on AWS**.
