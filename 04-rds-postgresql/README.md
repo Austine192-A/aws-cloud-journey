@@ -22,23 +22,7 @@ The lab involved:
 
 ## Architecture
 
-```text
-┌─────────────────────────────┐
-│       Windows Machine       │
-│                             │
-│     PostgreSQL psql         │
-└──────────────┬──────────────┘
-               │
-               │ PostgreSQL / TCP 5432
-               │ SSL/TLS
-               ▼
-┌─────────────────────────────┐
-│          Amazon RDS         │
-│       PostgreSQL 18.3       │
-│                             │
-│       Database: postgres    │
-└─────────────────────────────┘
-```
+![Lab 4 RDS PostgreSQL Architecture](screenshots/06-rds-postgresql-architecture.png)
 
 ## AWS Resources
 
