@@ -8,21 +8,7 @@ The goal was to deploy two web servers and configure an Application Load Balance
 
 ## Architecture
 
-```text
-                    Internet
-                       |
-                       v
-              Application Load
-                 Balancer
-                       |
-                       v
-                 Target Group
-                  /         \
-                 /           \
-                v             v
-        EC2 Web Server 1   EC2 Web Server 2
-        us-east-1c         us-east-1a
-```
+![Actual AWS Application Load Balancer and EC2 architecture](./screenshots/08-alb-ec2-architecture.png)
 
 ## AWS Services Used
 
