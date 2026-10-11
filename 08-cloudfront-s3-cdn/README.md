@@ -8,15 +8,7 @@ The goal was to understand how a CDN can sit in front of an S3 bucket and secure
 
 ## Architecture
 
-```text
-Client
-  |
-  v
-CloudFront
-  |
-  v
-Amazon S3
-```
+![Actual AWS CloudFront and S3 architecture](./screenshots/06-cloudfront-s3-architecture.png)
 
 ## Objectives
 
