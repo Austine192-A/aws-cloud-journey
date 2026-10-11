@@ -20,37 +20,7 @@ The environment used:
 
 ## Architecture
 
-```text
-                         INTERNET
-                            |
-                            v
-                    +---------------+
-                    |      ALB      |
-                    |  lab-10-alb   |
-                    +-------+-------+
-                            |
-                            v
-                    +---------------+
-                    | Target Group  |
-                    |lab-10-web-    |
-                    |   targets     |
-                    +-------+-------+
-                            |
-                            v
-                  +--------------------+
-                  | Auto Scaling Group |
-                  |   lab-10-web-asg   |
-                  +---------+----------+
-                            |
-                     Launch Template
-                            |
-                  +---------+---------+
-                  |                   |
-                  v                   v
-             EC2 Instance       EC2 Instance
-             Apache Web         Apache Web
-               Server              Server
-```
+![Actual AWS EC2 Auto Scaling architecture](./screenshots/08-ec2-auto-scaling-architecture.png)
 
 ---
 
