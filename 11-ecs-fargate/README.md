@@ -12,35 +12,7 @@ I also tested ECS service self-healing by deliberately stopping a running task a
 
 ## Architecture
 
-```text
-                         INTERNET
-                            │
-                            ▼
-                    ┌───────────────┐
-                    │      ALB      │
-                    │  lab-11-alb   │
-                    └───────┬───────┘
-                            │
-                            ▼
-                    ┌───────────────┐
-                    │ ECS Service   │
-                    │ lab-11-service│
-                    └───────┬───────┘
-                            │
-                    ┌───────┴───────┐
-                    ▼               ▼
-              ┌──────────┐    ┌──────────┐
-              │ Fargate  │    │ Fargate  │
-              │  Task 1  │    │  Task 2  │
-              └────┬─────┘    └────┬─────┘
-                   │               │
-                   └───────┬───────┘
-                           ▼
-                    ┌─────────────┐
-                    │     ECR     │
-                    │ lab-11-web  │
-                    └─────────────┘
-```
+![Actual AWS ECS Fargate architecture](./screenshots/08-ecs-fargate-architecture.png)
 
 ### Request Flow
 
