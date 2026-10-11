@@ -10,24 +10,7 @@ The system accepts an order through API Gateway, places the order onto an Amazon
 
 ## Architecture
 
-```text
-Client
-   |
-   v
-API Gateway
-   |
-   v
-Producer Lambda
-   |
-   v
-Amazon SQS
-   |
-   v
-Worker Lambda
-   |
-   v
-DynamoDB
-```
+![Actual AWS event-driven orders architecture](./screenshots/08-event-driven-architecture.png)
 
 ## AWS Services Used
 
