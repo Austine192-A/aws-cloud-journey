@@ -27,30 +27,7 @@ The workflow demonstrates how Step Functions orchestrates application logic, dir
 
 The workflow begins with `ValidateOrder`, then evaluates the order status in `CheckOrder`.
 
-```text
-                 Start
-                   |
-                   v
-             ValidateOrder
-                   |
-                   v
-               CheckOrder
-                   |
-          +--------+--------+
-          |                 |
-      Status = NEW       Default
-          |                 |
-          v                 v
-   Lambda processing    RejectOrder
-          |                 |
-          +--------+--------+
-                   |
-                   v
-             OrderCompleted
-                   |
-                   v
-                  End
-```
+![Actual AWS Step Functions state machine architecture](./screenshots/07-state-machine-architecture.png)
 
 ### Workflow behavior
 
