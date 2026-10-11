@@ -46,22 +46,9 @@ The subnet CIDR falls within the address range of the VPC. This allows the subne
 
 ## Architecture
 
-```mermaid
-flowchart TD
-    Internet((Internet))
-    IGW[Internet Gateway]
-    RT[Route Table]
-    subgraph VPC["Custom VPC — 10.0.0.0/16"]
-        subgraph SUBNET["Subnet — 10.0.1.0/24"]
-            EC2[EC2 Instance]
-            SG[Security Group]
-            EC2 --- SG
-        end
-    end
-    Internet <--> IGW
-    IGW --- RT
-    RT --- SUBNET
-```
+![Lab 03 VPC and Networking Architecture](screenshots/07-vpc-networking-architecture.png)
+
+The diagram illustrates the VPC networking components and how they work together to provide connectivity.
 
 The diagram represents the main components used in the lab. Successful internet connectivity depends on the applicable route-table entries, subnet configuration, instance addressing, and security rules.
 
