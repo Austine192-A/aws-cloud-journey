@@ -21,20 +21,7 @@ The goal of this lab was to understand the fundamentals of AWS object storage, S
 
 ## Architecture
 
-```text
-Local Website
-     │
-     │ Upload
-     ▼
-Amazon S3 Bucket
-     │
-     │ Static Website Hosting
-     ▼
-S3 Website Endpoint
-     │
-     ▼
-     Browser
-```
+![Lab 01 Amazon S3 Static Website Architecture](screenshoots/07-architecture-diagram.png)
 
 ## What I Built
 
@@ -54,6 +41,8 @@ The website was then uploaded to an Amazon S3 bucket and configured for static w
 
 I created a dedicated S3 bucket for the lab and configured it in my selected AWS Region.
 
+![S3 bucket creation](screenshoots/01-s3-bucket-creation.png)
+
 ### 2. Created the Website
 
 The website was built locally using:
@@ -72,6 +61,8 @@ style.css
 
 The website files were uploaded directly into the S3 bucket.
 
+![Website files uploaded to S3](screenshoots/05-s3-uploaded-files.png)
+
 The final bucket structure was:
 
 ```text
@@ -84,6 +75,8 @@ Bucket
 
 I configured the S3 bucket for static website hosting and specified:
 
+![S3 static website hosting configuration](screenshoots/06-s3-static-hosting.png)
+
 ```text
 Index document: index.html
 ```
@@ -91,6 +84,8 @@ Index document: index.html
 ### 5. Tested the Deployment
 
 After configuration, I opened the S3 website endpoint in a browser and verified that the website was successfully served from Amazon S3.
+
+![Live static website](screenshoots/04-s3-live-website.png)
 
 ## Challenge Encountered
 
@@ -102,6 +97,10 @@ Code: NoSuchKey
 ```
 
 The issue was caused by the website files not being located at the expected root level of the S3 bucket.
+
+![S3 policies configuration](screenshoots/02-s3-policies-configuration.png)
+
+![S3 bucket policy](screenshoots/03-s3-bucket-policies-config.png)
 
 I corrected the bucket structure so that `index.html` was directly inside the bucket rather than inside a folder.
 
