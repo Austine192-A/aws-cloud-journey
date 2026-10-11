@@ -14,18 +14,7 @@ This lab provided hands-on experience with serverless application architecture, 
 
 The application follows a serverless architecture:
 
-```text
-Client
-   │
-   ▼
-Amazon API Gateway
-   │
-   ▼
-AWS Lambda
-   │
-   ▼
-Amazon DynamoDB
-```
+![Actual AWS serverless task API architecture](./screenshots/06-serverless-task-api-architecture.png)
 
 The client sends an HTTP request to API Gateway. API Gateway invokes the Lambda function, which processes the request and reads or writes data in DynamoDB.
 
