@@ -31,26 +31,7 @@ This lab focused on:
 
 The lab used the following components:
 
-```text
-                         AWS Account
-                              │
-                              ▼
-                    IAM User: lab-05-s3-reader
-                              │
-                              │
-                    Custom IAM Policy
-                    Lab05-S3-ListOnly
-                              │
-                              │
-                              ▼
-                    Amazon S3 Bucket
-                 austine-iam-lab-05-2026
-                              │
-                    ┌─────────┴─────────┐
-                    ▼                   ▼
-             ListBucket             PutObject
-               ALLOWED                DENIED
-```
+![Lab 5 IAM Access Management Architecture](screenshots/06-iam-access-management-architecture.png)
 
 The IAM policy granted only:
 
