@@ -23,31 +23,7 @@ This lab covered:
 
 ## Architecture
 
-```text
-+-----------------+
-| Browser/Client  |
-+--------+--------+
-         |
-         | HTTP :3000
-         v
-+-----------------+
-| Internet        |
-+--------+--------+
-         |
-         v
-+-------------------------+
-| AWS EC2 Instance        |
-|                         |
-| Amazon Linux            |
-|   -> Node.js            |
-|   -> Express            |
-|   -> REST API :3000     |
-+-----------+-------------+
-            |
-            v
-     Security Group
-        TCP 3000
-```
+![Lab 02 EC2 Node.js API Architecture](screenshots/lab-02-architecture.png)
 
 ### Request Flow
 
