@@ -14,24 +14,7 @@ The API accepts a `GET` request and returns a JSON response from a Lambda functi
 
 ## Architecture
 
-```text
-Client / Browser
-       │
-       │ HTTP GET /hello
-       ▼
-Amazon API Gateway
-       │
-       │ Lambda invocation
-       ▼
-AWS Lambda
-       │
-       │ JSON response
-       ▼
-Amazon API Gateway
-       │
-       ▼
-Client / Browser
-```
+![Actual AWS Lambda and API Gateway architecture](./screenshots/06-lambda-api-gateway-architecture.png)
 
 ### AWS Services Used
 
