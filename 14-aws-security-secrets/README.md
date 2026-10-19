@@ -40,11 +40,19 @@ A demonstration secret named `lab14/demo/database-credentials` was created in AW
 
 The secret contained sample database credentials and used the default AWS-managed Secrets Manager encryption key. Automatic rotation was left disabled for this demonstration.
 
+![Secrets Manager secret details](screenshots/01-secret-details.png)
+
+*Figure 1: Demonstration secret and its configuration. The secret value is not shown.*
+
 ### 2. Created an IAM user
 
 An IAM user named `lab14-secret-reader` was created without AWS Management Console access.
 
 The user was intended to represent an application identity that required restricted access to the demonstration secret.
+
+![IAM user permissions](screenshots/02-iam-user-permissions.png)
+
+*Figure 2: IAM user and its attached permissions policy.*
 
 ### 3. Configured least-privilege permissions
 
@@ -56,6 +64,10 @@ The policy allowed the following action on the specific secret ARN:
 
 The policy did not grant broad Secrets Manager access or administrator permissions.
 
+![Least-privilege policy JSON](screenshots/03-least-privilege-policy.png)
+
+*Figure 3: Policy action and resource scope for the demonstration secret.*
+
 ### 4. Verified the policy
 
 The IAM policy JSON was reviewed to confirm that the action and resource ARN matched the intended configuration.
@@ -64,35 +76,13 @@ The IAM Policy Simulator was then used with `lab14-secret-reader` selected. The 
 
 This result verified the simulated policy evaluation. An actual secret retrieval using the IAM user's credentials was not performed.
 
+![IAM Policy Simulator allowed result](screenshots/04-policy-simulation-allowed.png)
+
+*Figure 4: The simulator returned Allowed for the requested action and resource.*
+
 ### 5. Cleaned up resources
 
 The AWS resources created for the lab were cleaned up after the configuration and simulation evidence had been captured.
-
-## Evidence and Screenshots
-
-### Secret details
-
-![Secrets Manager secret details](screenshots/01-secret-details.png)
-
-The screenshot documented the demonstration secret and its configuration without exposing the secret value.
-
-### IAM user permissions
-
-![IAM user permissions](screenshots/02-iam-user-permissions.png)
-
-The screenshot showed the IAM user and its attached permissions policy.
-
-### Least-privilege policy
-
-![Least-privilege policy JSON](screenshots/03-least-privilege-policy.png)
-
-The screenshot documented the policy action and the specific secret resource ARN.
-
-### Policy simulation result
-
-![IAM Policy Simulator allowed result](screenshots/04-policy-simulation-allowed.png)
-
-The screenshot recorded the **Allowed** result for the simulated `GetSecretValue` action.
 
 ## Key Lessons Learned
 
